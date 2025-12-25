@@ -1,4 +1,4 @@
-# Finding-1-High
+# Finding-1-Low
 # Title---->Misaligned rewards in Distributor:addRewards due to positional parameters
 
 ---
@@ -198,7 +198,7 @@ import {LaunchToken} from "contracts/launchpad/LaunchToken.sol";
 ```
 
 
-# Finding-2-Med
+# Finding-2-Low
 # TITLE---->DoS (liveness) during Launchpad's `Graduation: _swapRemaining` pulls msg.sender (operator) instead of the buyer account.
 
 ## Root:
@@ -375,7 +375,7 @@ import {IOperatorPanel} from "contracts/utils/interfaces/IOperatorPanel.sol";
 
 ```
 
-# Finding-3-Med
+# Finding-3-Low
 # Title---->Uneconomic/Impractical Gas Consumption When Matching Many Orders at Same Price
 
 ## Description
@@ -556,7 +556,7 @@ import "../../contracts/perps/types/Structs.sol";
 
 ```
 
-# Finding-4-High
+# Finding-4-Low
 # Title---->Inconsistent denominators in Market:getImpactPrice() cause asymmetric bid/ask weighting and skewed mark price.
 
 ## Root
@@ -724,7 +724,7 @@ import {FixedPointMathLib} from "@solady/utils/FixedPointMathLib.sol";
 
 ```
 
-# Finding-5-Med
+# Finding-5-Low
 # Title---->Unbounded Iteration Across Multiple Price Levels in CLOBLib(_matchIncomingBid and _matchIncomingAsk) Causes Gas DoS in Matching Engine
 
 ## Root
@@ -909,7 +909,7 @@ import "../../contracts/perps/types/Structs.sol";
 ```
 
 
-# Finding-6-Low/Quality
+# Finding-6-Low
 # Title---->Fragile swap deadline: block.timestamp + 1 causes flaky swaps.
 
 ## Description
