@@ -1,10 +1,10 @@
 ## 📊 Submissions Summary
 
-- **Total Findings Submitted:** 7  
+- **Total Findings Submitted:** 4  
 - **Severity Breakdown:**
   - 🟥 High: 0  
   - 🟧 Medium: 0  
-  - 🟨 Low / Informational: 7  
+  - 🟨 Low / Informational: 4  
 
 ---
 
@@ -17,7 +17,5 @@
 | 3   | Gas DoS when matching many orders at same price (Book.sol)            | Low      |
 | 4   | Inconsistent denominators skewing `getImpactPrice` (Market.sol)       | Low      |
 | 5   | Gas DoS across multiple price levels (CLOBLib)                        | Low      |
-| 6   | Fragile 1-second swap deadline                                        | Low      |
-| 7   | Unbounded loop in backstop liquidation                                | Low      |
 
 ---
