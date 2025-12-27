@@ -10,15 +10,6 @@ The issue is not merely frontend/UX related the contract API itself is misleadin
 
 ---
 
-## Impact
-- **Direct financial loss for reward sponsors:** Sponsor ends up transferring more of one token and less of the other than intended.  
-- **Unexpected gain/loss for stakers:** Stakers may receive more of an asset than the sponsor intended (overpayment) and less of the other (underpayment). If the overpaid asset has a much lower market value `(e.g., receiving 200 tokens worth 1 dollar instead of 100 tokens worth 10dollar), the staker also suffers an economic loss. ` Once rewards are credited to the wrong pool, stakers can immediately claim them. These assets are unrecoverable, leading to permanent loss for the sponsor.
-- **Distorted incentives:** Misaligned rewards break the intended incentive structure, potentially discouraging staking if participants consistently receive rewards in a less valuable token.  
-- **Severity:** This is immediate, non-recoverable value transfer when `addRewards` succeeds. It breaks trust in rewards accounting and can be exploited.Because the protocol itself promises order-agnostic behavior and fails to uphold it, this is not a frontend issue but a **protocol guarantee failure. It results in permanent, unrecoverable loss of sponsor funds. This is a High severity issue because it represents a protocol-level guarantee failure that leads to irreversible misallocation of assets and direct financial loss.**
-
-
----
-
 ## Detailed description
 
 **Bug / Problem:**
@@ -212,8 +203,6 @@ During graduation, `Launchpad:_swapRemaining` calls `data.quote.safeTransferFrom
 
 This blocks the final graduation step (locking bonding supply and creating the Uniswap LP). As a result, protocol liveness is broken: the token cannot complete its launch, even though the buyer intended to finish it. No funds are directly stolen, but launches can be temporarily stalled.
 
-Concrete observed failure in test: transaction reverts with `ERC20: transferFrom failed / Insufficient Allowance`. User and operator balances remain unchanged, but graduation cannot complete.
-
 `Severity-Medium`: Temporary denial of service for operator-triggered graduation. No direct fund loss, but it can delay launches and reduce reliability of operator relaying.
 
 `Additional Problem:` Incorrect refund to msg.sender.
@@ -256,15 +245,6 @@ File location: 2025-08-gte-perps/contracts/launchpad/Launchpad.sol
         }
     }
 ```
-
-### Mitigation:
-
-Ensure the graduation swap flow explicitly charges and refunds the original buyer `(the buyData.account)` rather than relying on `msg.sender`. The swap routine must always transferFrom the buyer for the AMM quoteNeeded and, on failure, refund that same buyer. This removes the incorrect reliance on the relayer/operator and prevents operator-relayed buys from causing allowance reverts or misdirected refunds.
-
-This ensures the transfer uses the user’s allowance and cannot be blocked by an operator’s missing approval.
-Also ensure the refund path in the catch uses the buyer’s address (same payer), or the contract may incorrectly refund the operator.”
-
-
 ## Proof of Concept:
 
 - User buys almost all bonding supply, leaving only 1e18 base unpurchased.
@@ -375,188 +355,8 @@ import {IOperatorPanel} from "contracts/utils/interfaces/IOperatorPanel.sol";
 
 ```
 
+
 # Finding-3-Low
-# Title---->Uneconomic/Impractical Gas Consumption When Matching Many Orders at Same Price
-
-## Description
-The protocol’s order matching engine iterates through each individual maker order at a given price level.
-If a taker order tries to consume multiple maker orders at once, the gas usage grows linearly with the number of maker orders at that price.
-This creates scenarios where valid user trades become impractical because the gas cost can exceed the economic value of the trade.
-
-`Bug/Problem:`
-
-- Multiple small maker orders placed at the same price level are not aggregated.
-- A taker consuming them must loop over all orders sequentially.
-- Gas usage becomes very high even under normal usage (not just attacker spam).
-
-File Location: 2025-08-gte-perps/contracts/perps/types/Book.sol
-
-```solidity
-
-    // Unbounded iteration over numOrders at the same price
-    // If thousands of orders exist, taker order must loop through all of them
-    // High gas cost, potential DoS by exceeding block gas limit
-
-    function _getQuoteLimit(Book storage self, Limit storage limit, uint256 price, uint256 baseAmount)
-        private
-        view
-        returns (uint256 quoteAmount, uint256 baseUsed)
-    {
-        uint256 numOrders = limit.numOrders;
-        OrderId orderId = limit.headOrder;
-
-        uint256 fillAmount;
-        for (uint256 i; i < numOrders; ++i) {
-            if (baseAmount == 0) break;
-            if (orderId.unwrap() == 0) break;
-
-            fillAmount = self.orders[orderId].amount.min(baseAmount);
-
-            quoteAmount += fillAmount.fullMulDiv(price, 1e18);
-            baseAmount -= fillAmount;
-            baseUsed += fillAmount;
-
-            orderId = self.orders[orderId].nextOrderId;
-        }
-    }
-
-    function _getBaseLimit(Book storage self, Limit storage limit, uint256 price, uint256 quoteAmount)
-        private
-        view
-        returns (uint256 baseAmount, uint256 quoteUsed)
-    {
-        uint256 numOrders = limit.numOrders;
-        OrderId orderId = limit.headOrder;
-
-        uint256 fillAmount;
-        for (uint256 i; i < numOrders; ++i) {
-            if (quoteAmount == 0) break;
-            if (orderId.unwrap() == 0) break;
-
-            fillAmount = self.orders[orderId].amount.min(quoteAmount.fullMulDiv(1e18, price));
-
-            baseAmount += fillAmount;
-            quoteUsed += fillAmount.fullMulDiv(price, 1e18);
-            quoteAmount -= fillAmount.fullMulDiv(price, 1e18);
-
-            orderId = self.orders[orderId].nextOrderId;
-        }
-    }
-```
-
-`Impact:`
-
-- Normal usage DoS: Large trades (with many small orders at the same price) become infeasible, discouraging users and reducing protocol usability.
-- Attacker DoS: An attacker can deliberately place thousands of tiny orders at one price to clog the book, making it prohibitively expensive for takers to fill.
-
-`Severity:`
-- Normal usage case → Medium (protocol becomes self-DOS’d, no one trades big sizes).
-- Attacker case → Low (attacker spends capital to spam book, mitigatable via fees or limits).
-
-## Mitigation
-- Aggregate maker orders at the same price level into a single entry (merge orders by price).
-- Impose a cap on the number of active orders per price level.
-- Use batching / skip-list / heap-based structures to reduce iteration cost.
-
-## POC
-- Place N maker orders at the same price (e.g., 40 makers, 1 lot each).
-- Place a large taker order consuming all makers.
-- Observe that gas usage grows linearly with N (≈6M gas for 40 orders).
-
-Paste this test in File Location: 2025-08-gte-perps/test/c4-poc/PoCPerps.t.sol
-
-```solidity
-
-import "../../contracts/perps/types/Structs.sol";
-
-    function test_submissionValidity() public {
-        // -------------------------------
-        // Setup: basic params
-        // -------------------------------
-        bytes32 asset = ETH;
-        uint256 price = _conformTickEth(4000e18); // price aligned to tick size
-        Side side = Side.SELL; // makers will SELL
-        uint256 lotSize = perpManager.getLotSize(asset);
-
-        uint256 numMakers = 40; // number of maker orders at same price
-        uint256 orderAmount = lotSize; // each maker sells 1 lot
-
-        // -------------------------------
-        // Step 1: Place multiple maker orders at same price
-        // -------------------------------
-        for (uint256 i = 0; i < numMakers; i++) {
-            // deterministic unique maker address (same pattern as elsewhere)
-            address maker = address(uint160(uint256(keccak256(abi.encodePacked("maker", i)))));
-
-            // fund + deposit
-            _mintAndApproveAndDeposit(maker, 1_000_000e18);
-
-            // maker order args
-            PlaceOrderArgs memory makerArgs = PlaceOrderArgs({
-                subaccount: 0,
-                asset: asset,
-                side: side,
-                limitPrice: price,
-                amount: orderAmount,
-                baseDenominated: true,
-                tif: TiF.MOC, // maker-only (limit order)
-                expiryTime: 0,
-                clientOrderId: 0,
-                reduceOnly: false
-            });
-
-            // place order as maker
-            vm.startPrank(maker);
-            perpManager.placeOrder(maker, makerArgs);
-            vm.stopPrank();
-        }
-
-        // -------------------------------
-        // Step 2: Place a large taker order to consume all makers
-        // -------------------------------
-        address taker = address(uint160(uint256(keccak256(abi.encodePacked("taker")))));
-        _mintAndApproveAndDeposit(taker, 1_000_000e18);
-
-        PlaceOrderArgs memory takerArgs = PlaceOrderArgs({
-            subaccount: 0,
-            asset: asset,
-            side: Side.BUY,
-            limitPrice: price,
-            amount: numMakers * orderAmount, // consume all maker orders
-            baseDenominated: true,
-            tif: TiF.IOC, // immediate-or-cancel taker order
-            expiryTime: 0,
-            clientOrderId: 0,
-            reduceOnly: false
-        });
-
-        // -------------------------------
-        // Step 3: Measure gas used by taker order
-        // -------------------------------
-        vm.startPrank(taker);
-        uint256 startGas = gasleft();
-        perpManager.placeOrder(taker, takerArgs);
-        uint256 used = startGas - gasleft();
-        vm.stopPrank();
-
-        // Log gas used (forge test logger)
-        emit log_named_uint("Gas used by taker order consuming all makers", used);
-    }
-    /*
-    Conclusion:
-    - Maker setup: 40 orders × 0.001 ETH each = 0.04 ETH total liquidity at price 4000 USDC/ETH = $160.
-    - Gas used: 6,049,814
-    - GasPrice = 1.5 gwei → ETH cost = 0.009074721 ETH → $36.30 → ≈ 22.7% of $160 trade.
-    - GasPrice = 2.0 gwei → ETH cost = 0.012099628 ETH → $48.40 → ≈ 30.2% of $160.
-    - GasPrice = 30.0 gwei → ETH cost = 0.181494420 ETH → $725.98 → ≈ 453.7% of $160.
-
-    Even with ETH = $4,000, numbers show gas is a huge chunk (22–30% at low gas prices; catastrophic at high gas).
-    This demonstrates that the protocol can self-DOS under normal usage.
-    */
-
-```
-
-# Finding-4-Low
 # Title---->Inconsistent denominators in Market:getImpactPrice() cause asymmetric bid/ask weighting and skewed mark price.
 
 ## Root
@@ -598,11 +398,6 @@ Likelihood: Thin orderbook states occur frequently for new/low-liquidity markets
 + if (impactNotional > quoteUsed) baseAmount += (impactNotional - quoteUsed).fullMulDiv(1e18, 1);
 
 ```
-
-`Notes / alternative fixes:`
-- Confirm intended units: if both sides should scale to base units, 1 is likely correct; if they should scale relative to a price or another factor, use that same factor on both sides. Add explicit comments describing units and why 1e18 is used in the numerator.
-- Consider replacing the ad-hoc fallback with a small helper function addFallbackBaseAmount(baseAmount, deltaNotional, scaleDenom) so symmetry is enforced by code structure (reduces copy-paste bugs).
-- Add defensive guards: clamp or sanity-check impactPrice relative to indexPrice (e.g., enforce |markPrice - indexPrice| <= divergenceCap * indexPrice) to limit transient manipulation or catastrophic values.
 
 ## POC
 
@@ -724,7 +519,7 @@ import {FixedPointMathLib} from "@solady/utils/FixedPointMathLib.sol";
 
 ```
 
-# Finding-5-Low
+# Finding-4-Low
 # Title---->Unbounded Iteration Across Multiple Price Levels in CLOBLib(_matchIncomingBid and _matchIncomingAsk) Causes Gas DoS in Matching Engine
 
 ## Root
