@@ -5,7 +5,7 @@ Each folder represents one protocol review and contains summarized findings and 
 
 ## 📊 Overall Summary
 
-- **Total Findings Submitted:** 15  
+- **Total Valid Findings:** 15  
 - **Severity Breakdown:**
   - 🟥 High: 1  
   - 🟧 Medium: 2  
