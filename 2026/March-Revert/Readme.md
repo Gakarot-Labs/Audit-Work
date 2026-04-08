@@ -1,6 +1,6 @@
 ## 📊 Submissions Summary
 
-- **Total Findings Submitted:** 4  
+- **Total Findings Submitted:** 5  
 - **Severity Breakdown:**
   - 🟥 High: 0  
   - 🟧 Medium: 3  
