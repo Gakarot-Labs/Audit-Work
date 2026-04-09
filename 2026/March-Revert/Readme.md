@@ -14,9 +14,10 @@
 |-----|--------------------------------------------------------------------------------------------------------------------------|----------|
 | 1   | Stale AutoExit configuration persists after NFT transfer allowing unauthorized execution by operator                     |  Medium  |
 | 2   | Daily lend increase limit not rescaled after lender haircut allowing circuit breaker bypass                              |  Medium  |
-| 3   | Inconsistent enforcement of autoCompoundRewardMin allows user Configuration bypass in executeWithVaultAndRewardCompound  |  Medium  |
+| 3   | Transform replacement missing _removeTokenFromOwner breaks vault ownership invariant and creates phantom tokens          |  Medium  |
 | 4   | Protocol compound reward fee cannot be increased after being lowered due to incorrect validation check                   |   Low    |
-| 5   | Transform replacement missing _removeTokenFromOwner breaks vault ownership invariant and creates phantom tokens          |   Low    |
+| 5   | Inconsistent enforcement of autoCompoundRewardMin allows user Configuration bypass in executeWithVaultAndRewardCompound  |   Low    |
+
 
 
 ---
