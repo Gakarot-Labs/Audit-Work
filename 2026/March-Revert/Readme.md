@@ -16,7 +16,7 @@
 | 2   | Daily lend increase limit not rescaled after lender haircut allowing circuit breaker bypass                              |  Medium  |
 | 3   | Inconsistent enforcement of autoCompoundRewardMin allows user Configuration bypass in executeWithVaultAndRewardCompound  |  Medium  |
 | 4   | Protocol compound reward fee cannot be increased after being lowered due to incorrect validation check                   |   Low    |
-| 5   | Transform replacement missing _removeTokenFromOwner breaks vault ownership invariant and creates phantom t               |   Low    |
+| 5   | Transform replacement missing _removeTokenFromOwner breaks vault ownership invariant and creates phantom tokens          |   Low    |
 
 
 ---
