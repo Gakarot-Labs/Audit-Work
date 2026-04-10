@@ -92,5 +92,3 @@ Paste this test in `Liquid-Positions-Plugin/test/invariants/LPPlugin.spec.ts` in
             }
         });
 ```
-
-# Title
