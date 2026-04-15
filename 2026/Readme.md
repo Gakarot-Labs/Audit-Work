@@ -2,8 +2,8 @@
 
 - **Total Valid Findings:** 13  
 - **Severity Breakdown:**
-  - 🟥 High: 5  
-  - 🟧 Medium: 4  
+  - 🟥 High: 6  
+  - 🟧 Medium: 3  
   - 🟨 Low / Informational: 4  
 
 ---
