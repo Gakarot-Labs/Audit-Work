@@ -1,10 +1,10 @@
 ## 📊 Submissions Summary
 
-- **Total Findings Submitted:** 1  
+- **Total Findings Submitted:** 2  
 - **Severity Breakdown:**
   - 🟥 High: 1  
   - 🟧 Medium: 0  
-  - 🟨 Low / Informational: 0  
+  - 🟨 Low / Informational: 1  
 
 ---
 
@@ -13,6 +13,7 @@
 | #   | Title                                                                                  | Severity |
 |-----|----------------------------------------------------------------------------------------|----------|
 | 1   | Non-Atomic reserve updates enable cross function reentrancy and pool draining          |  High    |
+| 2   | Permissionless extraction of trapped assets via faulty refund accounting               |  Info    |
 
 
 
