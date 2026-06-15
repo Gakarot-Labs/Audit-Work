@@ -4,17 +4,14 @@
 
 This directory documents my security review, threat analysis, mitigation design process and implementation contribution for the SBF Protocol maintained by Soulbound Security.
 
-The work focused on strengthening execution boundaries around gas-fund operations by introducing explicit control over external integration targets.
-
 ## Contribution
 
 My work included:
 
-* Reviewing the existing gas-fund interaction model.
-* Identifying security considerations around unrestricted target selection.
+* Reviewing the model.
+* Identifying security considerations.
 * Evaluating multiple mitigation approaches and their associated trade-offs.
-* Documenting the rationale for rejecting earlier mitigation proposals.
-* Designing and implementing the final approved-target whitelist approach.
+* Designing and implementing the final approved approach.
 * Submitting a protocol improvement pull request for review.
 
 ## Outcome
