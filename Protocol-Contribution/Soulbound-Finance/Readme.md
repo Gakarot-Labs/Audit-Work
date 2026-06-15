@@ -19,7 +19,10 @@ My work included:
 
 ## Outcome
 
-The proposed mitigation was accepted and merged into the protocol codebase.
+### Status
+
+- 2 findings merged.
+- 1 finding accepted (merge pending).
 
 ## References
 * Repo: [LINK](https://github.com/SoulboundSecurity/sbf-protocol)
