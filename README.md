@@ -5,10 +5,10 @@ Each folder represents one protocol review and contains summarized findings and 
 
 ## 📊 Overall Summary
 
-- **Total Valid Findings:** 34  
+- **Total Valid Findings:** 37  
 - **Severity Breakdown:**
-  - 🟥 High: 8  
-  - 🟧 Medium: 7  
+  - 🟥 High: 9  
+  - 🟧 Medium: 9  
   - 🟨 Low / Informational: 19  
 
 ---
