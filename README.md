@@ -1,5 +1,7 @@
 # Audit-Work
-Each folder represents one protocol review and contains summarized findings and observations focused on coverage, assumptions and risk reasoning and findings validated by contest judges.
+Each folder represents a protocol review and contains summarized findings, observations, coverage analysis, assumptions and risk reasoning. 
+
+Competitive audit findings included in this repository were validated by contest judges.
 
 > [!NOTE]
 > This repository contains only publicly disclosed work.
