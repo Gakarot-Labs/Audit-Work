@@ -1,7 +1,9 @@
 # Audit-Work
-This repository documents my public audit participation with findings validated by contest judges and review notes across multiple protocols.
+Each folder represents one protocol review and contains summarized findings and observations focused on coverage, assumptions and risk reasoning and findings validated by contest judges.
 
-Each folder represents one protocol review and contains summarized findings and observations focused on coverage, assumptions and risk reasoning.
+> [!NOTE]
+> This repository contains only publicly disclosed work.
+> Private audits, NDA engagements and confidential disclosures are intentionally excluded.
 
 ## 📊 Overall Summary
 
