@@ -1,4 +1,4 @@
-# Permissionless Vault Creation on PSM-Designated `noFee` Ilks Bricks `BalanceSheet.distributeSurplus`
+# Finding-1: Permissionless Vault Creation on PSM-Designated `noFee` Ilks Bricks `BalanceSheet.distributeSurplus`
 
 **Target:** `VaultEngine.sol`, `CollateralAdapter.sol`, `BalanceSheet.sol`
 
@@ -393,7 +393,7 @@ Ran 1 test suite in 13.73ms (5.16ms CPU time): 1 tests passed, 0 failed, 0 skipp
 ```
 
 
-# `End.flow()` Can Permanently Fix an Incorrect Redemption Price Before In-Flight Auctions Are Reconciled, Stranding Real Collateral
+# Finding-2: `End.flow()` Can Permanently Fix an Incorrect Redemption Price Before In-Flight Auctions Are Reconciled, Stranding Real Collateral
 
 **Target:** `End.sol`
 
